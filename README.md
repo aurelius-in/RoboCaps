@@ -21,6 +21,11 @@ RoboCaps is an end-to-end project that spans research, architecture, implementat
 2. Install dependencies: `pip install -r requirements.txt`
 3. Run API server: `uvicorn src.inference.api_server:app --reload`
 
+## Datasets & Benchmarking
+- LineMOD structure documented in `research/datasets/linemod/README.md`
+- Config template: `configs/linemod.yaml`
+- Evaluate (placeholder): `python -m src.training.eval_bench --data_root research/datasets/linemod`
+
 ## License
 Apache License 2.0. See `LICENSE`.
 

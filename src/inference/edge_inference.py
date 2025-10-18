@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import time
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -17,7 +18,7 @@ from src.utils.backbones import get_backbone
 
 
 class EdgeInference:
-    def __init__(self, num_parts: int = 8, backbone_kind: str = "convnext", backbone_name: str = "convnext_tiny") -> None:
+    def __init__(self, num_parts: int = 8, backbone_kind: str = "convnext", backbone_name: str = "convnext_tiny", pose_mode: str = "se2") -> None:
         backbone, feat_dim, forward_tokens = get_backbone(backbone_kind, backbone_name, pretrained=False)
 
         class TokenEncoder(torch.nn.Module):
@@ -31,7 +32,7 @@ class EdgeInference:
                 return tokens
 
         self.encoder = TokenEncoder().eval()
-        self.head = AttentionRoutedCapsuleHead(input_dim=feat_dim, num_children=196, num_parts=num_parts).eval()
+        self.head = AttentionRoutedCapsuleHead(input_dim=feat_dim, num_children=196, num_parts=num_parts, pose_mode=pose_mode).eval()
         self.session: Optional[ort.InferenceSession] = None  # type: ignore
 
     def export_onnx(self, output_path: str | Path, opset: int = 17) -> Path:
@@ -86,3 +87,20 @@ class EdgeInference:
         inputs = {self.session.get_inputs()[0].name: image_bchw}
         part_probs, poses = self.session.run(None, inputs)
         return {"part_probs": part_probs, "poses": poses}
+
+    def benchmark(self, iters: int = 50, batch: int = 1) -> Dict[str, float]:
+        arr = np.random.rand(batch, 3, 224, 224).astype(np.float32)
+        # warmup
+        for _ in range(5):
+            _ = self.infer_numpy(arr)
+        times = []
+        for _ in range(iters):
+            t0 = time.time()
+            _ = self.infer_numpy(arr)
+            times.append((time.time() - t0) * 1000.0)
+        times.sort()
+        avg = float(np.mean(times))
+        p50 = times[len(times) // 2]
+        p90 = times[int(len(times) * 0.9)]
+        fps = 1000.0 / avg if avg > 0 else 0.0
+        return {"latency_ms_avg": avg, "p50_ms": p50, "p90_ms": p90, "fps": fps}
