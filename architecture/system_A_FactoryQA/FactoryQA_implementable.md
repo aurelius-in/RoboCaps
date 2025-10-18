@@ -1,38 +1,51 @@
-# Factory QA — Implementable (RM-ODP)
+# Factory QA — Implementable
 
-## Technical Stack
-- Edge: Jetson Xavier/Orin (TensorRT), or x86 + RTX.
-- API: FastAPI + Uvicorn, gRPC optional for high-throughput streams.
-- Messaging: ROS2 Foxy/Humble or MQTT; Kafka cloud bus.
+## Components and Responsibilities
+- Capture: interface with cameras/PLC; timestamping and trigger control
+- Preprocess: resize, normalize, optional ROI; GPU-aware input pipeline
+- Inference: ONNX/TensorRT engine execution; batching (1) and warmup
+- Decision: thresholds per part; rule-based aggregation; write overlays
+- Gateway: local MQ, retries, edge buffering, TLS termination
+- API: FastAPI endpoints, schema validation, metrics exporter
 
-## Config Samples
+## Deployment Topology
+- Edge node: Capture, Preprocess, Inference, Gateway (systemd or containerized)
+- Cloud: API deployment (K8s with GPU pool), Event Bus (Kafka), Object Store (S3), Observability stack
+
+## Configuration
+- Models: versioned URIs; checksum enforcement
+- Thresholds: per-part and global; remotely updatable via config topic
+- Security: certificates rotation; registry credentials for pulling images
+
+## Failure Modes and Handling
+- Camera offline: raise alerts, continue with cached last-good config
+- GPU OOM: drop to reduced resolution; circuit-breaker on API
+- Connectivity loss: buffer locally; reconcile upon reconnect
+
+## SLOs
+- p50 latency < 60 ms; p99 < 120 ms
+- Decision accuracy per part tracked over sliding window; alert on drift
+
+## Helm Values (excerpt)
 ```yaml
-# edge_config.yaml
-camera:
-  topic: cam/image_raw
-  fps: 30
-inference:
-  engine: trt
-  model_uri: s3://models/robocaps/latest/robocaps.plan
-  batch_size: 1
-output:
-  mqtt_topic_poses: qa/poses
-  mqtt_topic_defects: qa/defects
+image:
+  repository: ghcr.io/your-org/robocaps-api
+  tag: latest
+resources:
+  limits:
+    nvidia.com/gpu: 1
+  requests:
+    cpu: 500m
+    memory: 1Gi
+    nvidia.com/gpu: 1
+env:
+  - name: MODEL_URI
+    value: s3://models/robocaps/latest/robocaps.plan
 ```
-
-## API Endpoints (FastAPI)
-- POST `/infer`: image bytes → JSON poses and confidences
-- GET `/healthz`: liveness
-- GET `/metrics`: Prometheus exporter
-
-## Deployment Notes
-- Kubernetes: GPU node pool, tolerations and resource limits for TRT pods.
-- Observability: scrape metrics, forward logs; attach trace ids to events.
-- Security: mTLS between gateway and API; short-lived tokens for edge.
 
 ## Deployment Diagram
 ```mermaid
-%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'16px' }}}%%
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'fontSize':'16px' }}}%%
 flowchart LR
     subgraph Edge[Edge Node]
       Cam[Camera]
@@ -40,9 +53,9 @@ flowchart LR
       Cam --> Agent
     end
     Agent -->|HTTPS| API[Perception API]
-    API --> Bus[(Kafka)]
-    API --> Obj[Data Lake / S3]
+    API --> Bus[Kafka]
+    API --> Obj[Data Lake S3]
     Bus --> Train[Training Jobs]
-    Train --> Registry[(Model Registry)]
+    Train --> Registry[Model Registry]
     Registry --> API
 ```

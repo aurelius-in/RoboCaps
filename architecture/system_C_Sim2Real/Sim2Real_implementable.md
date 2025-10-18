@@ -1,38 +1,34 @@
-# Sim2Real — Implementable (RM-ODP)
+# Sim2Real — Implementable
 
-## Technical Stack
-- Simulation: Isaac Sim or Unreal-based pipelines.
-- Training: PyTorch DDP, mixed precision.
-- Storage: S3-compatible; metadata DB for runs.
+## Components
+- Simulation Workers: distributed GPU containers generating synthetic data
+- Trainer: DDP, mixed precision; logs to object store and metadata DB
+- Evaluator: runs standardized metrics on real datasets; emits overlays
+- Orchestrator: queues runs; enforces quotas and retention
 
-## Config Samples
-```yaml
-training:
-  batch_size: 64
-  lr: 3e-4
-  epochs: 50
-sim:
-  domain_randomization: true
-  params: [lighting, texture, pose, occlusion]
-```
+## Infrastructure
+- Kubernetes GPU node pool for sim and train
+- Object store (S3) and metadata database (PostgreSQL)
+- CI/CD for containers and SBOMs
 
-## Deployment Notes
-- Use containerized sim workers on GPU nodes.
-- Track provenance for synthetic assets and seeds.
-- Automate regression against real eval suites.
+## Configuration
+- Domain parameters catalog; randomization ranges by scenario
+- Seeds and reproducibility policies
+- Resource limits per run; priority classes
+
+## Failure Modes
+- Worker failures: retry with backoff; checkpoint resume
+- Storage saturation: lifecycle rules; alerting
+- Metric regressions: automated stop conditions
 
 ## Deployment Diagram
 ```mermaid
-%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'14px' }}}%%
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'fontSize':'16px' }}}%%
 flowchart LR
-    subgraph Cloud[Cloud]
-      Sim[Sim Workers]
-      Train[Trainer]
-      Eval[Evaluator]
-      Sim --> Train
-      Train --> Eval
-    end
-    Store[(S3 + Metadata DB)]
-    Train --> Store
-    Eval --> Store
+  Orchestrator[Orchestrator] --> Sim[Sim Workers]
+  Orchestrator --> Train[Trainer]
+  Train --> Eval[Evaluator]
+  Train --> S3[Object Store]
+  Eval --> S3
+  Orchestrator --> Meta[Metadata DB]
 ```
