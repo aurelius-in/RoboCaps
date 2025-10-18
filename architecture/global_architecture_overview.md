@@ -4,15 +4,15 @@ RoboCaps spans edge perception, cloud training/evaluation, and enterprise integr
 
 ## C4 Context
 ```mermaid
-%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'14px' }}}%%
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000000', 'primaryTextColor':'#FFFFFF', 'fontSize':'16px' }}}%%
 flowchart LR
-    E[Edge Robots\nCameras + Jetson/RTX] -- MQTT/ROS2 --> G[Edge Gateway\nQoS, buffering]
-    G -- gRPC/HTTPs --> A[Perception API\nFastAPI + TensorRT]
-    A -- events --> B[Event Bus\nKafka/Redpanda]
-    B -- features --> T[Training Pipeline\nPyTorch + S3]
-    T -- models --> R[Registry\nModel/Config/Artifacts]
+    E[Edge Robots<br/>Cameras + Jetson / RTX] -- MQTT / ROS2 --> G[Edge Gateway<br/>QoS, buffering]
+    G -- gRPC / HTTPS --> A[Perception API<br/>FastAPI + TensorRT]
+    A -- events --> B[Event Bus<br/>Kafka or Redpanda]
+    B -- features --> T[Training Pipeline<br/>PyTorch + S3]
+    T -- models --> R[Registry<br/>Model, Config, Artifacts]
     R -- deploy --> A
-    A -- insights --> BI[Enterprise Apps\nMES/ERP/QMS]
+    A -- insights --> BI[Enterprise Apps<br/>MES / ERP / QMS]
 ```
 
 ## Cross-Cutting Concerns
@@ -27,7 +27,7 @@ flowchart LR
 
 ## Data Lifecycle
 ```mermaid
-%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'14px' }}}%%
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'16px' }}}%%
 sequenceDiagram
     autonumber
     participant Edge as Edge Inference
