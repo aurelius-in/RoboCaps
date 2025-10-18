@@ -23,6 +23,7 @@ except Exception:  # pragma: no cover - optional
 
 from src.core.capsule_head import AttentionRoutedCapsuleHead
 from src.utils.backbones import get_backbone
+from src.inference.trt_calib import NumpyEntropyCalibrator  # new import
 
 
 class EdgeInference:
@@ -134,7 +135,10 @@ class EdgeInference:
             config.set_flag(trt.BuilderFlag.FP16)
         if int8 and builder.platform_has_fast_int8:
             config.set_flag(trt.BuilderFlag.INT8)
-            # For real use, attach calibrator here
+            # simple random calibration data; replace with real batches in production
+            calib_data = np.random.rand(8, 3, 224, 224).astype(np.float32)
+            calibrator = NumpyEntropyCalibrator(batch_data=calib_data)
+            config.int8_calibrator = calibrator  # type: ignore
         profile = builder.create_optimization_profile()
         input_name = network.get_input(0).name
         profile.set_shape(input_name, (1, 3, 224, 224), (4, 3, 224, 224), (8, 3, 224, 224))
