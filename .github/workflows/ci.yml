@@ -29,9 +29,15 @@ jobs:
       - name: Tests
         run: |
           pytest -q || true
-      - name: Docker build
+      - name: Docker build (api)
         run: |
           docker build -f deployment/docker/Dockerfile.dev -t robocaps-api:ci .
+      - name: Docker build (manip)
+        run: |
+          docker build -f deployment/docker/Dockerfile.dev -t robocaps-manip:ci .
+      - name: Docker build (sim2real)
+        run: |
+          docker build -f deployment/docker/Dockerfile.dev -t robocaps-sim2real:ci .
       - name: SBOM & Scan (Trivy)
         run: |
           trivy image --exit-code 0 --format table robocaps-api:ci
@@ -45,12 +51,15 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Push image
+      - name: Push images
         if: github.event_name == 'push'
         run: |
-          IMAGE=ghcr.io/${{ github.repository_owner }}/robocaps-api
-          TAG=${GITHUB_SHA::7}
-          docker tag robocaps-api:ci $IMAGE:$TAG
-          docker tag robocaps-api:ci $IMAGE:latest
-          docker push $IMAGE:$TAG
-          docker push $IMAGE:latest
+          SHA=${GITHUB_SHA::7}
+          for IMG in api manip sim2real; do
+            LOCAL=robocaps-$IMG:ci
+            REMOTE=ghcr.io/${{ github.repository_owner }}/robocaps-$IMG
+            docker tag $LOCAL $REMOTE:$SHA
+            docker tag $LOCAL $REMOTE:latest
+            docker push $REMOTE:$SHA
+            docker push $REMOTE:latest
+          done

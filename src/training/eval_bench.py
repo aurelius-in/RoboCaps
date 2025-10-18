@@ -1,25 +1,31 @@
 from __future__ import annotations
 
 import argparse
+import csv
 from pathlib import Path
 
 import torch
 
 from src.training.data_linemod import build_linemod_loader
+from src.training.data_ycb_video import build_ycb_loader
 from src.core.capsule_head import AttentionRoutedCapsuleHead
 from src.utils.backbones import get_backbone
-from src.utils.metrics import add_metric
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--dataset", type=str, choices=["linemod", "ycb"], default="linemod")
     parser.add_argument("--data_root", type=str, default="research/datasets/linemod")
     parser.add_argument("--batch_size", type=int, default=1)
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
+    parser.add_argument("--out_csv", type=str, default="research/experiments/results/bench.csv")
     args = parser.parse_args()
 
     device = torch.device(args.device)
-    loader = build_linemod_loader(args.data_root, split="test", batch_size=args.batch_size)
+    if args.dataset == "linemod":
+        loader = build_linemod_loader(args.data_root, split="test", batch_size=args.batch_size)
+    else:
+        loader = build_ycb_loader(args.data_root, split="test", batch_size=args.batch_size)
 
     backbone, feat_dim, forward_tokens = get_backbone("convnext", "convnext_tiny", pretrained=False)
 
@@ -36,18 +42,23 @@ def main() -> None:
     encoder = TokenEncoder().to(device).eval()
     head = AttentionRoutedCapsuleHead(input_dim=feat_dim, num_children=196, num_parts=8).to(device).eval()
 
-    total = 0.0
-    count = 0
+    rows = []
     with torch.no_grad():
         for batch in loader:
             images = batch["images"].to(device)
             tokens = encoder(images)
             out = head(tokens)
-            # Placeholder metric: confidence proxy
-            total += float(out["part_probs"].mean().item())
-            count += 1
-    avg = total / max(count, 1)
-    print({"confidence_proxy": avg})
+            rows.append({
+                "confidence_proxy": float(out["part_probs"].mean().item()),
+                "num_parts": out["part_probs"].shape[1],
+            })
+    out_path = Path(args.out_csv)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with out_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(rows)
+    print(f"Wrote {len(rows)} rows to {out_path}")
 
 
 if __name__ == "__main__":

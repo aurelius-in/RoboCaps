@@ -1,0 +1,37 @@
+{{- if .Values.manip.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "robocaps.fullname" . }}-manip
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "robocaps.name" . }}-manip
+  template:
+    metadata:
+      labels:
+        app: {{ include "robocaps.name" . }}-manip
+    spec:
+      containers:
+        - name: manip
+          image: "{{ .Values.manip.image.repository }}:{{ .Values.manip.image.tag }}"
+          imagePullPolicy: {{ .Values.manip.image.pullPolicy }}
+          command: ["python", "-m", "uvicorn", "src.apps.manipulation_service:app", "--host", "0.0.0.0", "--port", "8001"]
+          ports:
+            - containerPort: 8001
+          resources:
+            {{- toYaml .Values.manip.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "robocaps.fullname" . }}-manip
+spec:
+  type: {{ .Values.manip.service.type }}
+  selector:
+    app: {{ include "robocaps.name" . }}-manip
+  ports:
+    - port: {{ .Values.manip.service.port }}
+      targetPort: 8001
+{{- end }}
