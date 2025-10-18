@@ -1,0 +1,4 @@
+sim2real:
+  results_path: "research/experiments/results/sim2real.jsonl"
+  runs: 5
+  seeds: [1, 2, 3, 4, 5]

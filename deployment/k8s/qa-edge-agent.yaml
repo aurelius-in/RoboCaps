@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: robocaps-qa-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: robocaps-qa-agent
+  template:
+    metadata:
+      labels:
+        app: robocaps-qa-agent
+    spec:
+      containers:
+        - name: agent
+          image: robocaps-api:dev
+          command: ["python", "-m", "src.apps.factory_qa_agent", "--config", "/config/factory_qa_agent.yaml"]
+          volumeMounts:
+            - name: config
+              mountPath: /config
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+              nvidia.com/gpu: 1
+      volumes:
+        - name: config
+          configMap:
+            name: robocaps-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: robocaps-config
+data:
+  factory_qa_agent.yaml: |
+    factory_qa_agent:
+      input_dir: "/data/input"
+      overlay_dir: "/data/overlays"
+      audit_path: "/data/audit/qa.jsonl"
+      batch_size: 1
+      resize_hw: [224, 224]

@@ -13,6 +13,31 @@ In robotics, perception outputs should be structured and actionable: part identi
 
 RoboCaps operationalizes these properties for three real-world systems: Factory QA, Robot Manipulation, and Sim2Real.
 
+## Apps (ready to run)
+- Factory QA Edge Agent (CLI):
+  - Config: `configs/factory_qa_agent.yaml`
+  - Run: `python -m src.apps.factory_qa_agent --config configs/factory_qa_agent.yaml`
+- Manipulation Service (FastAPI):
+  - Run: `uvicorn src.apps.manipulation_service:app --host 0.0.0.0 --port 8001`
+- Sim2Real Orchestrator (CLI):
+  - Config: `configs/sim2real.yaml`
+  - Run: `python -m src.apps.sim2real_orchestrator --config configs/sim2real.yaml`
+
+Docker Compose: `docker compose -f deployment/docker/compose.yaml up --build`
+
+Kubernetes: apply manifests in `deployment/k8s/`.
+
+## Structure
+```
+.
+├── research/                # Papers, experiments, datasets
+├── architecture/            # Architecture docs & diagrams
+├── src/                     # Core library, apps, training, inference, viz
+├── deployment/              # Docker, K8s, edge systemd, CI/CD guides
+├── docs/                    # Academic, corporate, marketing, product, roadmap
+└── pitch/                   # Whitepaper, investor deck, vision
+```
+
 ## What makes RoboCaps different
 - Attention-routed capsules: we cast routing-by-agreement as multi-head attention to stabilize training and leverage mature GPU kernels, while preserving the core agreement principle [1,2].
 - Pose-first heads: SE(2) and SE(3) parameterizations are native outputs; pose losses include consistency and equivariance regularization [3–6].

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: robocaps-manip
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: robocaps-manip
+  template:
+    metadata:
+      labels:
+        app: robocaps-manip
+    spec:
+      containers:
+        - name: manip
+          image: robocaps-api:dev
+          command: ["python", "-m", "uvicorn", "src.apps.manipulation_service:app", "--host", "0.0.0.0", "--port", "8001"]
+          ports:
+            - containerPort: 8001
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+              nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: robocaps-manip
+spec:
+  type: ClusterIP
+  selector:
+    app: robocaps-manip
+  ports:
+    - port: 8001
+      targetPort: 8001

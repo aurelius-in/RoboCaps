@@ -1,0 +1,6 @@
+factory_qa_agent:
+  input_dir: "sample_images"
+  overlay_dir: "artifacts/overlays"
+  audit_path: "artifacts/audit/qa.jsonl"
+  batch_size: 1
+  resize_hw: [224, 224]
