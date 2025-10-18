@@ -1,5 +1,5 @@
 image:
-  repository: ghcr.io/your-org/robocaps-api
+  repository: ghcr.io/aurelius-in/robocaps-api
   tag: latest
   pullPolicy: IfNotPresent
 
