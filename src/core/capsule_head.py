@@ -10,9 +10,11 @@ from .routing_attention import RoutingAttention
 
 
 class AttentionRoutedCapsuleHead(nn.Module):
-    """Capsule head producing part probabilities and SE(2) pose parameters.
+    """Capsule head producing part probabilities and pose parameters.
 
-    For simplicity, pose is parameterized as (tx, ty, theta) per part. Extendable to SE(3).
+    Pose parameterization:
+      - se2: (tx, ty, theta)
+      - se3: (tx, ty, tz, qw, qx, qy, qz)
     """
 
     def __init__(
@@ -22,10 +24,13 @@ class AttentionRoutedCapsuleHead(nn.Module):
         num_parts: int,
         num_heads: int = 4,
         hidden_dim: int = 256,
+        pose_mode: str = "se2",
     ) -> None:
         super().__init__()
+        assert pose_mode in {"se2", "se3"}
         self.num_parts = num_parts
         self.num_children = num_children
+        self.pose_mode = pose_mode
         self.routing = RoutingAttention(input_dim=input_dim, num_parents=num_parts, num_heads=num_heads)
         self.mlp = nn.Sequential(
             nn.LayerNorm(input_dim),
@@ -33,7 +38,8 @@ class AttentionRoutedCapsuleHead(nn.Module):
             nn.GELU(),
         )
         self.logit_proj = nn.Linear(hidden_dim, 1)
-        self.pose_proj = nn.Linear(hidden_dim, 3)  # (tx, ty, theta)
+        pose_out = 3 if pose_mode == "se2" else 7
+        self.pose_proj = nn.Linear(hidden_dim, pose_out)
 
     def forward(self, child_tokens: torch.Tensor) -> Dict[str, torch.Tensor]:
         """Compute part scores and poses.
@@ -44,12 +50,18 @@ class AttentionRoutedCapsuleHead(nn.Module):
             dict with:
                 - part_logits: (batch, num_parts)
                 - part_probs: (batch, num_parts)
-                - poses: (batch, num_parts, 3)
+                - poses: (batch, num_parts, P)
                 - attn: (batch, heads, num_parts, num_children)
         """
         parents, attn = self.routing(child_tokens)  # (b,np,c), (b,h,np,nc)
         h = self.mlp(parents)  # (b,np,hidden)
         logits = self.logit_proj(h).squeeze(-1)  # (b,np)
         probs = torch.sigmoid(logits)
-        poses = self.pose_proj(h)  # (b,np,3)
+        poses = self.pose_proj(h)  # (b,np,P)
+        if self.pose_mode == "se3":
+            # Normalize quaternion part to unit length
+            t = poses[..., :3]
+            q = poses[..., 3:]
+            q = q / (q.norm(dim=-1, keepdim=True) + 1e-8)
+            poses = torch.cat([t, q], dim=-1)
         return {"part_logits": logits, "part_probs": probs, "poses": poses, "attn": attn}

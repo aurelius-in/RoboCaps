@@ -1,0 +1,11 @@
+dataset:
+  root: "research/datasets/linemod"
+  image_size: [480, 640]
+  split: "test"
+
+model:
+  num_parts: 8
+  pose_mode: "se2"  # or "se3"
+
+inference:
+  batch_size: 1
