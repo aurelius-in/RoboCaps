@@ -1,5 +1,8 @@
 # Capsules and Transformers for Structured Vision: A Survey
 
+Affiliation: Boston University, M.S. Program (2018)
+Advisor: Prof. Eric Braude
+
 ## Abstract
 Surveying capsule routing mechanisms and transformer architectures for part–whole reasoning, with emphasis on equivariance and pose estimation.
 
@@ -23,3 +26,6 @@ Data efficiency, 3D reasoning, closed-loop control.
 
 ## References
 (Representative works)
+
+## Acknowledgments
+Prepared during the author’s Master of Science studies at Boston University (2018) under Prof. Eric Braude.

@@ -1,6 +1,8 @@
 # RoboCaps: Structured Part–Pose Capsules for Robotic Perception
 
 Authors: RoboCaps Contributors
+Affiliation: Boston University, M.S. Program (2018)
+Advisor: Prof. Eric Braude
 
 ## Abstract
 We present Attention-Routed Capsule Networks (RoboCaps) that disentangle object parts and poses with equivariant reasoning for robotic perception and control. The architecture integrates transformer backbones with dynamic routing by agreement cast as multi-head attention, delivering improved part confidence calibration and pose consistency under viewpoint changes.
@@ -43,3 +45,6 @@ Summary of contributions and outlook toward edge deployment and productionizatio
 [1] Hinton et al., Dynamic Routing Between Capsules. 2017.
 [2] Dosovitskiy et al., An Image is Worth 16x16 Words. 2020.
 [3] Cohen & Welling, Group Equivariant CNNs. 2016.
+
+## Acknowledgments
+This work originated during the author’s Master of Science studies at Boston University (2018) under the guidance of Prof. Eric Braude. The author thanks peers and faculty for discussions that shaped the problem framing and evaluation methodology.

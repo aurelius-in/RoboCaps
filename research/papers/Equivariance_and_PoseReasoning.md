@@ -1,5 +1,8 @@
 # Equivariance and Pose Reasoning in Vision Models
 
+Affiliation: Boston University, M.S. Program (2018)
+Advisor: Prof. Eric Braude
+
 ## Abstract
 A concise technical note on designing and evaluating equivariant models for pose-aware perception.
 
@@ -17,3 +20,6 @@ Loss design and decoding strategies.
 
 ## References
 (Key theoretical and empirical references)
+
+## Acknowledgments
+Created during the author’s Master of Science studies at Boston University (2018) with guidance from Prof. Eric Braude.
