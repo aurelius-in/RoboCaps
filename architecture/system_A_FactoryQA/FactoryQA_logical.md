@@ -14,3 +14,17 @@
 
 ## Reliability
 - Backpressure via gateway buffers, at-least-once delivery, idempotent sink.
+
+## Component/Data Flow
+```mermaid
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'14px' }}}%%
+flowchart LR
+    CAM[/cam/image_raw/] --> CAP[Capture Service]
+    CAP --> PRE[Preprocess Node]
+    PRE --> INF[RoboCaps Inference]
+    INF --> POS[Pose Output]
+    INF --> CONF[Part Confidence]
+    POS --> MQTT{{mqtt: qa/poses}}
+    CONF --> MQTT
+    INF --> API[/POST /infer/]
+```

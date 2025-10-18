@@ -12,3 +12,16 @@
 ## Computational Viewpoint (conceptual)
 - Services: Capture, Preprocess, Perception, Decisioning, Audit.
 - Interactions: Event-driven; edge-local decision with cloud sync.
+
+## Context Diagram
+```mermaid
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'14px' }}}%%
+flowchart LR
+    Operator((Operator)) -->|Start/Stop| Capture[Capture]
+    PLC((PLC)) -->|Triggers| Capture
+    Capture --> Pre[Preprocess]
+    Pre --> Perception[Perception (RoboCaps)]
+    Perception --> Decision[Decisioning]
+    Decision --> Audit[(Audit Store)]
+    Decision --> Bus[(Events)]
+```

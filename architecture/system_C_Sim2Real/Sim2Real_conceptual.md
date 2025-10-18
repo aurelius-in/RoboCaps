@@ -10,3 +10,13 @@
 ## Computational Viewpoint (conceptual)
 - Services: Synthetic Data Gen, Training, Evaluation, Adaptation.
 - Interactions: Iterative loop to shrink sim-to-real gap.
+
+## Iterative Loop
+```mermaid
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'14px' }}}%%
+flowchart LR
+    RAND[Domain Randomization] --> TRAIN[Train]
+    TRAIN --> EVAL[Evaluate]
+    EVAL --> GAP[Gap Analysis]
+    GAP -->|tune| RAND
+```
