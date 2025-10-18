@@ -66,5 +66,5 @@
 - [x] Build FP16/INT8 TRT engines and perf harness
 - [x] Create Helm chart for API with GPU values
 - [x] Publish images to GHCR via CI updates
-- [ ] Add unit/golden/e2e smoke tests
+- [x] Add unit/golden/e2e smoke tests
 - [x] Add benchmarking and case study docs; update README
