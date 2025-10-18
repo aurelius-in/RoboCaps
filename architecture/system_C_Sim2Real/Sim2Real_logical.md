@@ -10,3 +10,15 @@
 
 ## Workflows
 - Randomize → Train → Evaluate → Adapt → Re-evaluate.
+
+## Components & Data
+```mermaid
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'14px' }}}%%
+flowchart LR
+    SYN[Synthetic Datasets] --> T[Trainer]
+    REAL[Real Datasets] --> E[Evaluator]
+    T --> CKPT[Checkpoints]
+    CKPT --> E
+    E --> MET[Metrics]
+    MET --> T
+```

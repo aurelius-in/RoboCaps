@@ -12,3 +12,14 @@
 
 ## Reliability
 - Time-synced frames, watchdog timers, safe stop hooks.
+
+## Components
+```mermaid
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'14px' }}}%%
+flowchart LR
+    CAM[/camera/color/] --> PER[Perception]
+    PER --> AFF[Affordances]
+    AFF --> PLAN[Planner]
+    PLAN --> CTRL[Controller]
+    CTRL --> ROBOT[(Robot)]
+```

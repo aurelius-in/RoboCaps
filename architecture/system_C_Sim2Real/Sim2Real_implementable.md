@@ -20,3 +20,19 @@ sim:
 - Use containerized sim workers on GPU nodes.
 - Track provenance for synthetic assets and seeds.
 - Automate regression against real eval suites.
+
+## Deployment Diagram
+```mermaid
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'14px' }}}%%
+flowchart LR
+    subgraph Cloud[Cloud]
+      Sim[Sim Workers]
+      Train[Trainer]
+      Eval[Evaluator]
+      Sim --> Train
+      Train --> Eval
+    end
+    Store[(S3 + Metadata DB)]
+    Train --> Store
+    Eval --> Store
+```

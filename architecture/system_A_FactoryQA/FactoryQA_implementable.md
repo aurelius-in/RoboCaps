@@ -29,3 +29,20 @@ output:
 - Kubernetes: GPU node pool, tolerations and resource limits for TRT pods.
 - Observability: scrape metrics, forward logs; attach trace ids to events.
 - Security: mTLS between gateway and API; short-lived tokens for edge.
+
+## Deployment Diagram
+```mermaid
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'14px' }}}%%
+flowchart LR
+    subgraph Edge[Edge Node]
+      Cam[Camera]
+      Agent[Edge Inference (TRT)]
+      Cam --> Agent
+    end
+    Agent -->|HTTPS| API[Perception API]
+    API --> Bus[(Kafka)]
+    API --> Obj[(S3 Artifacts)]
+    Bus --> Train[Training Jobs]
+    Train --> Registry[(Model Registry)]
+    Registry --> API
+```
