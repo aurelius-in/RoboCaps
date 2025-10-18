@@ -13,6 +13,14 @@ try:
 except Exception:  # pragma: no cover - optional
     ort = None  # type: ignore
 
+try:  # optional TensorRT
+    import tensorrt as trt  # type: ignore
+    import pycuda.autoinit  # type: ignore  # noqa: F401
+    import pycuda.driver as cuda  # type: ignore
+except Exception:  # pragma: no cover - optional
+    trt = None  # type: ignore
+    cuda = None  # type: ignore
+
 from src.core.capsule_head import AttentionRoutedCapsuleHead
 from src.utils.backbones import get_backbone
 
@@ -104,3 +112,36 @@ class EdgeInference:
         p90 = times[int(len(times) * 0.9)]
         fps = 1000.0 / avg if avg > 0 else 0.0
         return {"latency_ms_avg": avg, "p50_ms": p50, "p90_ms": p90, "fps": fps}
+
+    # Optional TensorRT builder (requires TensorRT and CUDA)
+    def build_trt_engine(self, onnx_path: str | Path, fp16: bool = True, int8: bool = False, engine_out: str | Path = "robocaps.plan") -> Path:
+        if trt is None:
+            raise RuntimeError("TensorRT not available")
+        onnx_path = str(onnx_path)
+        engine_out = Path(engine_out)
+        logger = trt.Logger(trt.Logger.WARNING)
+        builder = trt.Builder(logger)
+        network_flags = 1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
+        network = builder.create_network(network_flags)
+        parser = trt.OnnxParser(network, logger)
+        with open(onnx_path, "rb") as f:
+            if not parser.parse(f.read()):
+                msgs = [parser.get_error(i) for i in range(parser.num_errors)]
+                raise RuntimeError(f"ONNX parse failed: {msgs}")
+        config = builder.create_builder_config()
+        config.max_workspace_size = 1 << 30
+        if fp16 and builder.platform_has_fast_fp16:
+            config.set_flag(trt.BuilderFlag.FP16)
+        if int8 and builder.platform_has_fast_int8:
+            config.set_flag(trt.BuilderFlag.INT8)
+            # For real use, attach calibrator here
+        profile = builder.create_optimization_profile()
+        input_name = network.get_input(0).name
+        profile.set_shape(input_name, (1, 3, 224, 224), (4, 3, 224, 224), (8, 3, 224, 224))
+        config.add_optimization_profile(profile)
+        engine = builder.build_engine(network, config)
+        if engine is None:
+            raise RuntimeError("Failed to build TensorRT engine")
+        with open(engine_out, "wb") as f:
+            f.write(engine.serialize())
+        return engine_out
