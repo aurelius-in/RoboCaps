@@ -1,0 +1,13 @@
+[Unit]
+Description=RoboCaps Edge QA Agent
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/robocaps
+ExecStart=/usr/bin/python3 -m src.apps.factory_qa_agent --config /opt/robocaps/configs/factory_qa_agent.yaml
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
