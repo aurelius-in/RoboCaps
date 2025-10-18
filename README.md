@@ -66,6 +66,7 @@ See `architecture/` for detailed C4/RM-ODP docs and high-contrast diagrams.
 - Multi-vertical adapters (QA, manipulation, logistics), SDKs, and managed deployment profiles
 
 ## References
+```
 [1] Sabour, Frosst, Hinton. Dynamic Routing Between Capsules. NeurIPS 2017.
 [2] Hinton, Sabour, Frosst. Matrix Capsules with EM Routing. ICLR 2018.
 [3] Cohen, Welling. Group Equivariant Convolutional Networks. ICML 2016.
@@ -73,6 +74,6 @@ See `architecture/` for detailed C4/RM-ODP docs and high-contrast diagrams.
 [5] Thomas et al. Tensor Field Networks: Rotation- and Translation-Equivariant Neural Networks. arXiv 2018.
 [6] Kondor, Trivedi. On the Generalization of Equivariance and Convolution in Neural Networks to the Action of Compact Groups. ICML 2018.
 [7] Dosovitskiy et al. An Image is Worth 16×16 Words: Transformers for Image Recognition at Scale. ICLR 2021.
-
+```
 —
 For high-level product/market framing, see `docs/marketing/` and `pitch/`. For deployment, see `deployment/` and the Helm chart in `deployment/k8s/helm/robocaps`.
