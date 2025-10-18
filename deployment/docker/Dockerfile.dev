@@ -1,0 +1,12 @@
+FROM pytorch/pytorch:2.3.0-cuda12.1-cudnn8-runtime
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git curl ca-certificates && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+COPY requirements.txt /app/
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . /app
+
+ENV PYTHONUNBUFFERED=1
+CMD ["python", "-m", "uvicorn", "src.inference.api_server:app", "--host", "0.0.0.0", "--port", "8000"]

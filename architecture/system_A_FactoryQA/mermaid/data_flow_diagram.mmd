@@ -1,0 +1,8 @@
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'14px' }}}%%
+flowchart LR
+    CAM[/cam/image_raw/] --> PRE[preprocess]
+    PRE --> INF[infer_capsules]
+    INF --> P[poses]
+    INF --> C[part_confidence]
+    P --> OUT{{mqtt: qa/poses}}
+    C --> OUT

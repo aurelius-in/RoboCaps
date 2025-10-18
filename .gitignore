@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-wheel-metadata/
+*.egg-info/
+dist/
+build/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data & results
+data/
+research/experiments/results/
+
+# Logs
+logs/
+**/*.log
+
+# Coverage / test
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Models & artifacts
+artifacts/
+checkpoints/
+models/
+
+# Node (if any UI assets later)
+node_modules/
+
+
