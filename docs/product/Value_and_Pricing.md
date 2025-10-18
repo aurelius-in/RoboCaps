@@ -1,11 +1,13 @@
 # Value & Pricing
 
-## Value Propositions
-- Yield improvement and cycle-time reduction
-- Explainable perception and auditability
-- Rapid integration with standard interfaces
+## Value
+- Throughput: increase yield and reduce cycle time
+- Quality: fewer false rejects; stable pose-based decisions
+- Governance: audit trails, metrics, and model provenance
 
-## Pricing Models
-- Subscription per line/cell (SaaS)
-- Per-seat for R&D tooling
-- Enterprise license with support SLAs
+## Pricing Tiers (indicative)
+- Starter: per line/cell subscription; community support
+- Professional: per line/cell with priority support, dashboards
+- Enterprise: site-wide licensing, SSO/RBAC, custom SLAs, onboarding
+
+Contact us for tailored pilots and volume pricing.

@@ -1,36 +1,36 @@
-# Robot Manipulation — Implementable (RM-ODP)
+# Robot Manipulation — Implementable
 
-## Technical Stack
-- Perception: RoboCaps + TensorRT for low-latency inference.
-- Planning: MoveIt2, OMPL; optional gRPC planning service.
-- Control: ROS2 controllers, real-time kernel when applicable.
+## Components
+- Perception Service: RoboCaps capsule head with SE(3) output; TensorRT runtime
+- Affordance Module: generates grasp candidates from part poses
+- Planner: MoveIt2/OMPL with collision checking
+- Controller Interface: sends trajectories; monitors execution
 
-## Config Samples
-```yaml
-perception:
-  engine: trt
-  model_uri: s3://models/robocaps/manipulation/robocaps.plan
-planning:
-  planner: ompl
-  timeout_s: 2.0
-```
+## Deployment
+- Workcell GPU node for perception; planner/controller co-located or on robot controller
+- ROS2 network configured with QoS appropriate for real-time perception topics
 
-## Deployment Notes
-- Synchronize time across sensors and robot controllers (NTP/PTP).
-- Isolate GPU inference from planning threads.
-- Record audit trails for executed grasps and outcomes.
+## Configuration
+- Model URIs and calibration parameters
+- Grasp scoring thresholds and safety margins
+- Timeouts for planning and execution
+
+## Safety
+- Safe stop integration; watchdogs on controller feedback
+- Workspace and speed limits; emergency stop propagation
+
+## Failure Modes
+- Pose drift: re-observe and replan; add view change
+- Planner failure: alternative grasps; fallback hand-off
+- Controller faults: safe stop and notify operator
 
 ## Deployment Diagram
 ```mermaid
-%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'14px' }}}%%
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'fontSize':'16px' }}}%%
 flowchart LR
-    subgraph Cell[Workcell]
-      Cam[Wrist/Overhead Cam]
-      GPU[GPU Node]
-      API[Perception API]
-      Cam --> GPU
-      GPU --> API
-    end
-    API --> MoveIt[MoveIt2]
-    MoveIt --> Robot[(Robot Controller)]
+  Cam[Camera] --> Per[Perception TRT]
+  Per --> Aff[Affordance]
+  Aff --> Plan[Planner MoveIt2]
+  Plan --> Ctrl[Controller]
+  Ctrl --> Robot[Robot HW]
 ```

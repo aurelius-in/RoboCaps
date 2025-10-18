@@ -1,24 +1,35 @@
-# Sim2Real — Logical (RM-ODP)
+# Sim2Real — Logical
 
 ## Interfaces
-- Dataset registry: list/register/delete datasets.
-- Trainer: start/stop runs, resume checkpoints.
-- Evaluator: submit model, return metrics.
+- Dataset registry: list/register datasets; schema validation
+- Trainer API: start/stop runs; resume from checkpoint
+- Evaluator: submit model; return metrics JSON and overlays
 
-## Contracts
-- Gap metrics: `{pose_error, part_ap, equivariance_score}` with splits.
+## Data Schemas
+- Scenario: `{id, domain_params, seed}`
+- Run: `{id, scenario_id, started_at, finished_at, artifacts: [...]}`
+- Metric: `{name, value, split, object}`
 
-## Workflows
-- Randomize → Train → Evaluate → Adapt → Re-evaluate.
+## Workflow
+Randomize → train → evaluate on real sets → analyze gap → adapt → iterate.
 
-## Components & Data
+## Error Handling
+- Invalid datasets: quarantine and report
+- Training failures: restart with backoff; notify maintainers
+- Metric anomalies: alert thresholds
+
+## Observability
+- Prometheus: training time/epoch, eval throughput, gap metrics
+- Logs: structured, include seeds and parameter hashes
+
+## Data Flow
 ```mermaid
-%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'14px' }}}%%
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000000', 'primaryTextColor':'#FFFFFF', 'fontSize':'16px' }}}%%
 flowchart LR
-    SYN[Synthetic Datasets] --> T[Trainer]
-    REAL[Real Datasets] --> E[Evaluator]
-    T --> CKPT[Checkpoints]
-    CKPT --> E
-    E --> MET[Metrics]
-    MET --> T
+  SYN[synthetic_datasets] --> T[trainer]
+  REAL[real_datasets] --> E[evaluator]
+  T --> CKPT[checkpoints]
+  CKPT --> E
+  E --> GAP[gap_metrics]
+  GAP --> T
 ```
