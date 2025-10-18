@@ -1,0 +1,11 @@
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'14px' }}}%%
+sequenceDiagram
+    autonumber
+    participant Cam as Camera
+    participant Edge as Edge Inference
+    participant GW as Edge Gateway
+    participant API as Perception API
+    Cam->>Edge: Frame + Trigger
+    Edge->>Edge: Preprocess + Infer
+    Edge->>GW: Results + Artifacts
+    GW->>API: HTTPS /infer

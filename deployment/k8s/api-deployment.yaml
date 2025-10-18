@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: robocaps-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: robocaps-api
+  template:
+    metadata:
+      labels:
+        app: robocaps-api
+    spec:
+      containers:
+        - name: api
+          image: robocaps-api:dev
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          resources:
+            limits:
+              nvidia.com/gpu: 1
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+              nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: robocaps-api
+spec:
+  type: ClusterIP
+  selector:
+    app: robocaps-api
+  ports:
+    - port: 80
+      targetPort: 8000
