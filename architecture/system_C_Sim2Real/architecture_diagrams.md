@@ -17,12 +17,12 @@ sequenceDiagram
 
 ## Container View (C4)
 ```mermaid
-%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'FFF', 'fontSize':'16px' }}}%%
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'16px' }}}%%
 flowchart LR
   SIM[Sim Workers]-->TRAIN[Trainer]
   REAL[Real Datasets]-->EVAL[Evaluator]
-  TRAIN-->REG[(Registry)]
-  EVAL-->MET[(Metrics Store)]
+  TRAIN-->REG[Model Registry]
+  EVAL-->MET[Metrics Store]
 ```
 
 ## Entity-Relationship (Sim2Real)

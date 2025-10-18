@@ -32,16 +32,16 @@ output:
 
 ## Deployment Diagram
 ```mermaid
-%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'14px' }}}%%
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'16px' }}}%%
 flowchart LR
     subgraph Edge[Edge Node]
       Cam[Camera]
-      Agent[Edge Inference (TRT)]
+      Agent[Edge Inference - TRT]
       Cam --> Agent
     end
     Agent -->|HTTPS| API[Perception API]
     API --> Bus[(Kafka)]
-    API --> Obj[(S3 Artifacts)]
+    API --> Obj[Data Lake / S3]
     Bus --> Train[Training Jobs]
     Train --> Registry[(Model Registry)]
     Registry --> API

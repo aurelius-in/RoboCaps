@@ -2,16 +2,16 @@
 
 ## Sequence (Perception-to-Grasp)
 ```mermaid
-%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'16px' }}}%%
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000000', 'primaryTextColor':'#FFFFFF', 'fontSize':'16px' }}}%%
 sequenceDiagram
     autonumber
-    participant Cam as Wrist/Overhead Cam
+    participant Cam as Wrist or Overhead Cam
     participant Per as Perception Node
     participant Plan as Motion Planner
     participant Ctrl as Controller
     Cam->>Per: Frames
     Per->>Per: Capsules + Pose
-    Per->>Plan: Object/part poses
+    Per->>Plan: Object and part poses
     Plan->>Ctrl: Trajectory
     Ctrl->>Robot: Execute
 ```
@@ -24,7 +24,7 @@ flowchart LR
   PER-->AFF[Affordance]
   AFF-->PLAN[Planner]
   PLAN-->CTRL[Controller]
-  CTRL-->ROBOT[(Robot HW)]
+  CTRL-->ROBOT[Robot HW]
 ```
 
 ## Entity-Relationship (Manipulation Domain)
