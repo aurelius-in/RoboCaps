@@ -2,7 +2,7 @@
 
 ## Sequence (Train → Evaluate → Adapt)
 ```mermaid
-%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'14px' }}}%%
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'16px' }}}%%
 sequenceDiagram
     autonumber
     participant Sim as Simulator
@@ -15,14 +15,33 @@ sequenceDiagram
     Eval->>Train: Gap metrics / hints
 ```
 
-## Data Flow
+## Container View (C4)
 ```mermaid
-%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'14px' }}}%%
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'FFF', 'fontSize':'16px' }}}%%
 flowchart LR
-    SYN[synthetic_datasets] --> T[trainer]
-    REAL[real_datasets] --> E[evaluator]
-    T --> CKPT[checkpoints]
-    CKPT --> E
-    E --> GAP[gap_metrics]
-    GAP --> T
+  SIM[Sim Workers]-->TRAIN[Trainer]
+  REAL[Real Datasets]-->EVAL[Evaluator]
+  TRAIN-->REG[(Registry)]
+  EVAL-->MET[(Metrics Store)]
+```
+
+## Entity-Relationship (Sim2Real)
+```mermaid
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'16px' }}}%%
+erDiagram
+  SCENARIO ||--o{ DOMAIN_PARAM : uses
+  RUN ||--o{ CHECKPOINT : creates
+  RUN ||--o{ METRIC : logs
+  DATASET ||--o{ SCENE : includes
+```
+
+## State Machine (Adaptation)
+```mermaid
+%%{init: { 'theme': 'dark', 'themeVariables': { 'background':'#000', 'primaryTextColor':'#FFF', 'textColor':'#FFF', 'fontSize':'16px' }}}%%
+stateDiagram-v2
+  [*] --> Randomize
+  Randomize --> Train
+  Train --> Evaluate
+  Evaluate --> AnalyzeGap
+  AnalyzeGap --> Randomize
 ```
