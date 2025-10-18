@@ -1,1 +1,5 @@
-Placeholder: The executive pitch PDF will be generated from the investor deck and executive brief. See `pitch/RoboCaps_Investor_Deck.md` and `docs/corporate/RoboCaps_Executive_Brief.md`.
+Executive Pitch Outline:
+- Problem: brittle perception; lack of explainability
+- Solution: attention-routed capsules; structured part–pose outputs
+- Proof: latency targets, overlays, integration stack
+- Ask: pilot intros and deployment support
