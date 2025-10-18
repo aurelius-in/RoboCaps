@@ -2,6 +2,20 @@
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "robocaps"
+version = "0.1.0"
+description = "Structured Part–Pose Capsules for Robotic Perception"
+authors = [{ name = "RoboCaps Contributors" }]
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+keywords = ["capsule networks", "robotics", "perception", "pose"]
+
+[project.scripts]
+robocaps-qa-agent = "src.apps.factory_qa_agent:main"
+robocaps-sim2real = "src.apps.sim2real_orchestrator:main"
+
 [tool.black]
 line-length = 100
 target-version = ["py310"]
