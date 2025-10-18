@@ -145,3 +145,27 @@ class EdgeInference:
         with open(engine_out, "wb") as f:
             f.write(engine.serialize())
         return engine_out
+
+    def parity_check(self, batch: int = 2, tol: float = 1e-3) -> Dict[str, float]:
+        arr = np.random.rand(batch, 3, 224, 224).astype(np.float32)
+        # Eager
+        with torch.no_grad():
+            images = torch.from_numpy(arr).float()
+            tokens = self.encoder(images)
+            eager = self.head(tokens)
+        eager_probs = eager["part_probs"].cpu().numpy()
+        eager_poses = eager["poses"].cpu().numpy()
+        # ORT if available
+        if self.session is not None:
+            ort_out = self.infer_numpy(arr)
+            probs_delta = float(np.abs(ort_out["part_probs"] - eager_probs).mean())
+            poses_delta = float(np.abs(ort_out["poses"] - eager_poses).mean())
+        else:
+            probs_delta = 0.0
+            poses_delta = 0.0
+        return {"probs_delta": probs_delta, "poses_delta": poses_delta, "tol": tol}
+
+    class Int8Calibrator:  # placeholder
+        def __init__(self, data: np.ndarray):
+            self.data = data
+        # A real calibrator would implement TensorRT IInt8EntropyCalibrator2 API

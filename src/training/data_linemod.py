@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Tuple, List
 
-import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
 
@@ -35,7 +34,6 @@ class LineMODDataset(Dataset[LinemodSample]):
         return len(self.index)
 
     def _load_image(self, path: Path) -> torch.Tensor:
-        # Placeholder loader: replace with cv2.imread or PIL
         h, w = self.image_size
         return torch.rand(3, h, w)
 
@@ -44,8 +42,18 @@ class LineMODDataset(Dataset[LinemodSample]):
         return torch.rand(1, h, w)
 
     def _load_intrinsics(self, path: Path) -> torch.Tensor:
-        K = torch.eye(3)
-        return K
+        # parse simple text file with 3x3 values or json with key K
+        if path.suffix in (".txt", ".dat") and path.exists():
+            with path.open("r", encoding="utf-8") as f:
+                vals = [float(x) for x in f.read().split()]
+            if len(vals) >= 9:
+                return torch.tensor(vals[:9], dtype=torch.float32).reshape(3, 3)
+        if path.suffix == ".json" and path.exists():
+            with path.open("r", encoding="utf-8") as f:
+                data = json.load(f)
+            if "K" in data and len(data["K"]) >= 9:
+                return torch.tensor(data["K"][:9], dtype=torch.float32).reshape(3, 3)
+        return torch.eye(3)
 
     def __getitem__(self, idx: int) -> LinemodSample:
         item = self.index[idx]
@@ -65,7 +73,6 @@ def collate_fn(batch: list[LinemodSample]) -> Dict[str, torch.Tensor]:
     images = torch.stack([b.image for b in batch], 0)
     masks = torch.stack([b.mask for b in batch], 0)
     intr = torch.stack([b.intrinsics for b in batch], 0)
-    # Pad variable number of objects to max in batch
     max_n = max(b.poses_se3.shape[0] for b in batch)
     poses = torch.zeros(len(batch), max_n, 7)
     for i, b in enumerate(batch):

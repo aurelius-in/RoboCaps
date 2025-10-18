@@ -14,3 +14,20 @@ resources:
     cpu: 500m
     memory: 1Gi
     nvidia.com/gpu: 1
+
+manip:
+  enabled: true
+  image:
+    repository: ghcr.io/aurelius-in/robocaps-api
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8001
+  resources:
+    limits:
+      nvidia.com/gpu: 1
+    requests:
+      cpu: 500m
+      memory: 1Gi
+      nvidia.com/gpu: 1

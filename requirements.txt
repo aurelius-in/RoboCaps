@@ -14,6 +14,8 @@ tensorboard>=2.15
 fastapi>=0.110
 uvicorn[standard]>=0.29
 pydantic>=2.6
+prometheus-client>=0.20.0
+httpx>=0.27.0
 
 # Serialization & config
 omegaconf>=2.3
